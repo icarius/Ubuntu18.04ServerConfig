@@ -26,7 +26,7 @@ echo "Installation de fail2ban"
 apt install -y fail2ban
 echo "Configuration de fail2ban"
 mv /etc/fail2ban/jail.s/defaults-debian.conf /etc/fail2ban/jail.s/defaults-debian.conf.bak
-cat <<EOT >>/etc/fail2ban/jail.s/defaults-debian.conf
+cat <<EOT >>/etc/fail2ban/jail.d/defaults-debian.conf
 [DEFAULT]
 banaction = ufw
 
@@ -52,7 +52,32 @@ maxretry = 2
 enabled = true
 port    = http,https
 logpath = %(nginx_access_log)s
+
+[nginx-badbots]
+enabled  = true
+port    = http,https
+filter = apache-badbots
+logpath = %(nginx_access_log)s
+maxretry = 1
+ 
+[nginx-proxy]
+enabled = true
+port 	= http,https
+filter 	= nginx-proxy
+logpath = %(nginx_access_log)s
+maxretry = 0
+
+[nginx-dos]
+enabled  = true
+port     = http,https
+filter   = nginx-dos
+logpath  = %(nginx_access_log)s
+findtime = 120
+maxretry = 200
 EOT
+wget https://gist.githubusercontent.com/JulienBlancher/48852f9d0b0ef7fd64c3/raw/9f8e9e886a9822483ab3e52682b951a9a68a6519/filter.d_nginx-proxy.conf -O /etc/fail2ban/filter.d/nginx-proxy.conf
+wget https://gist.githubusercontent.com/JulienBlancher/48852f9d0b0ef7fd64c3/raw/9f8e9e886a9822483ab3e52682b951a9a68a6519/filter.d_nginx-noscript.conf -O /etc/fail2ban/filter.d/nginx-noscript.conf
+wget https://gist.githubusercontent.com/JulienBlancher/48852f9d0b0ef7fd64c3/raw/9f8e9e886a9822483ab3e52682b951a9a68a6519/filter.d_nginx-dos.conf -O /etc/fail2ban/filter.d/nginx-dos.conf
 echo "Démarrage de fail2ban"
 systemctl start fail2ban
 systemctl enable fail2ban
@@ -63,9 +88,9 @@ echo "Configuration de UFW"
 ufw default deny incoming
 ufw default allow outgoing
 ufw allow ssh
-echo "Activation de fail2ban"
+echo "Activation de UFW"
 ufw enable
-echo "Activation de fail2ban terminé"
+echo "Activation de UFW terminé"
 
 echo "Installation de cockpit"
 apt install -y cockpit cockpit-packagekit
@@ -125,7 +150,7 @@ echo "Installation des packages et dépendances"
 apt install -y libssl-dev libffi-dev python-dev python-pip python-setuptools python-virtualenv unzip augeas-lenses libaugeas0
 wget https://github.com/trailofbits/algo/archive/master.zip -P /opt
 echo "Décompression de l'archive"
-unzip /opt/master.zip
+unzip /opt/master.zip -d /opt
 cd /opt/algo-master/
 echo "Compilation de ALGO VPN"
 python -m virtualenv --python=`which python2` env &&
