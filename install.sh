@@ -78,6 +78,22 @@ EOT
 wget https://gist.githubusercontent.com/JulienBlancher/48852f9d0b0ef7fd64c3/raw/9f8e9e886a9822483ab3e52682b951a9a68a6519/filter.d_nginx-proxy.conf -O /etc/fail2ban/filter.d/nginx-proxy.conf
 wget https://gist.githubusercontent.com/JulienBlancher/48852f9d0b0ef7fd64c3/raw/9f8e9e886a9822483ab3e52682b951a9a68a6519/filter.d_nginx-noscript.conf -O /etc/fail2ban/filter.d/nginx-noscript.conf
 wget https://gist.githubusercontent.com/JulienBlancher/48852f9d0b0ef7fd64c3/raw/9f8e9e886a9822483ab3e52682b951a9a68a6519/filter.d_nginx-dos.conf -O /etc/fail2ban/filter.d/nginx-dos.conf
+pip install telegram-send
+wget https://raw.githubusercontent.com/icarius/Ubuntu18.04ServerConfig/master/telegram-send.conf -O /etc/telegram-send.conf
+telegram-send --config /etc/telegram-send.conf
+cat <<EOT >>/etc/fail2ban/action.d/telegram.conf
+# File /etc/fail2ban/action.d/telegram.conf
+[Definition]
+actionstart = /usr/local/bin/telegram-send --format markdown "[Fail2Ban] The jail <name> has been started on `uname -n` successfully."
+actionstop = /usr/local/bin/telegram-send --format markdown "[Fail2Ban] The jail <name> has been stopped on `uname -n`."
+actioncheck =
+actionban = /usr/local/bin/telegram-send --format markdown "[Fail2Ban] The IP <ip> has just been banned by Fail2Ban after <failures> attempts against <name> from `uname -n`"
+actionunban = /usr/local/bin/telegram-send --format markdown "[Fail2Ban] The IP <ip> has just been unbanned by Fail2Ban after <failures> attempts against <name> from `uname -n`"
+
+[Init]
+init = 'Fail2Ban Telegram plugins activated"
+EOT
+
 echo "Démarrage de fail2ban"
 systemctl start fail2ban
 systemctl enable fail2ban
