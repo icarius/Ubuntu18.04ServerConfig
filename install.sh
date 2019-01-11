@@ -79,7 +79,8 @@ wget https://gist.githubusercontent.com/JulienBlancher/48852f9d0b0ef7fd64c3/raw/
 wget https://gist.githubusercontent.com/JulienBlancher/48852f9d0b0ef7fd64c3/raw/9f8e9e886a9822483ab3e52682b951a9a68a6519/filter.d_nginx-noscript.conf -O /etc/fail2ban/filter.d/nginx-noscript.conf
 wget https://gist.githubusercontent.com/JulienBlancher/48852f9d0b0ef7fd64c3/raw/9f8e9e886a9822483ab3e52682b951a9a68a6519/filter.d_nginx-dos.conf -O /etc/fail2ban/filter.d/nginx-dos.conf
 pip install telegram-send
-wget https://raw.githubusercontent.com/icarius/Ubuntu18.04ServerConfig/master/telegram-send.conf -O /etc/telegram-send.conf
+mkdir /etc/telegram
+wget https://raw.githubusercontent.com/icarius/Ubuntu18.04ServerConfig/master/telegram/telegram-send.conf -O /etc/telegram/telegram-send.conf
 telegram-send --config /etc/telegram-send.conf
 cat <<EOT >>/etc/fail2ban/action.d/telegram.conf
 # File /etc/fail2ban/action.d/telegram.conf
@@ -93,6 +94,8 @@ actionunban = /usr/local/bin/telegram-send --format markdown "[Fail2Ban] The IP 
 [Init]
 init = 'Fail2Ban Telegram plugins activated"
 EOT
+
+wget https://raw.githubusercontent.com/icarius/Ubuntu18.04ServerConfig/master/telegram/telegram_alert.sh -O /etc/profile.d/telegram-alert.sh
 
 echo "Démarrage de fail2ban"
 systemctl start fail2ban
@@ -177,6 +180,9 @@ echo "Autorisation des ports 500,4500 TCP et UDP dans UFW"
 ufw allow proto tcp from any to any port 500,4500
 ufw allow proto udp from any to any port 500,4500
 ./algo 
+
+
+
 
 echo"***************************"
 echo"** Installation terminée **"
