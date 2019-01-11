@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # Import credentials form config file
-source /etc/telegram/telegram-send.conf
+token="705667270:AAHgDiNoPf7gAAc9BuBGeChGZ3N4BKemNkE"
+chat_id="777539657"
 
 URL="https://api.telegram.org/bot${token}/sendMessage"
 DATE="$(date "+%d %b %Y %H:%M")"
